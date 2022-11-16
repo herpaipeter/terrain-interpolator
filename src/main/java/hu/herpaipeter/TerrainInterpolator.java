@@ -1,5 +1,6 @@
 package hu.herpaipeter;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,48 +28,41 @@ public class TerrainInterpolator {
     }
 
     void doSquare(int x, int y, int size) {
-        int x1 = x;
-        int y1 = y;
-        int x2 = x + size - 1;
-        int y2 = y;
-        int x3 = x;
-        int y3 = y + size - 1;
-        int x4 = x + size - 1;
-        int y4 = y + size - 1;
+        int xLeft = x;
+        int xRight = x + size - 1;
+        int yBottom = y;
+        int yTop = y + size - 1;
+        double average = average(xLeft, yBottom, xRight, yBottom, xLeft, yTop, xRight, yTop);
+
         int xMiddle = x + (size - 1) / 2;
         int yMiddle = y + (size - 1) / 2;
-        double average = average(x1, y1, x2, y2, x3, y3, x4, y4);
         set(xMiddle, yMiddle, average);
     }
 
     void doDiamond(int x, int y, int size) {
         int middle = (size - 1) / 2;
-        int xMiddle = x + middle;
-        int yMiddle = y + middle;
-        doDiamondPart(xMiddle, yMiddle - middle, middle, size);
-        doDiamondPart(xMiddle - middle, yMiddle, middle, size);
-        doDiamondPart(xMiddle, yMiddle + middle, middle, size);
-        doDiamondPart(xMiddle + middle, yMiddle, middle, size);
+        doDiamondPart(x + middle, y, middle, size);
+        doDiamondPart(x, y + middle, middle, size);
+        doDiamondPart(x + middle, y + 2 * middle, middle, size);
+        doDiamondPart(x + 2 * middle, y + middle, middle, size);
     }
 
     void doDiamondPart(int xMiddle, int yMiddle, int middle, int size) {
         List<Integer> ints = new ArrayList<>();
-        int x11 = xMiddle - middle;
-        int y11 = yMiddle;
-        if (isValidPair(x11, y11, size))
-            ints.addAll(Arrays.asList(x11, y11));
-        int x12 = xMiddle + middle;
-        int y12 = yMiddle;
-        if (isValidPair(x12, y12, size))
-            ints.addAll(Arrays.asList(x12, y12));
-        int x13 = xMiddle;
-        int y13 = yMiddle - middle;
-        if (isValidPair(x13, y13, size))
-            ints.addAll(Arrays.asList(x13, y13));
-        int x14 = xMiddle;
-        int y14 = yMiddle + middle;
-        if (isValidPair(x14, y14, size))
-            ints.addAll(Arrays.asList(x14, y14));
+        int xLeft = xMiddle - middle;
+        int xRight = xMiddle + middle;
+        int yBottom = yMiddle - middle;
+        int yTop = yMiddle + middle;
+
+        if (isValidPair(xLeft, yMiddle, size))
+            ints.addAll(Arrays.asList(xLeft, yMiddle));
+        if (isValidPair(xRight, yMiddle, size))
+            ints.addAll(Arrays.asList(xRight, yMiddle));
+        if (isValidPair(xMiddle, yBottom, size))
+            ints.addAll(Arrays.asList(xMiddle, yBottom));
+        if (isValidPair(xMiddle, yTop, size))
+            ints.addAll(Arrays.asList(xMiddle, yTop));
+
         double average1 = average(ints.toArray(new Integer[ints.size()]));
         set(xMiddle, yMiddle, average1);
     }
@@ -78,7 +72,11 @@ public class TerrainInterpolator {
     }
 
     double average(Integer... points) {
-        return (get(points[0], points[1]) + get(points[2], points[3]) + get(points[4], points[5]) + get(points[6], points[7])) / (points.length / 2.0);
+        double sum = 0.0;
+        for (int i = 0; i < points.length; i+=2) {
+            sum += get(points[i], points[i + 1]);
+        }
+        return sum / (points.length / 2.0);
     }
 
     void set(int x, int y, double value) {
