@@ -5,9 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.hamcrest.text.IsEmptyString.emptyString;
+import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.emptyString;
 import static org.junit.Assert.assertThat;
 
 @RunWith(HierarchicalContextRunner.class)
@@ -51,6 +52,16 @@ public class TerrainInterpolatorTest {
                 interpolator.interpolate(dummy, 3);
                 assertThat(actions, startsWith(
                         "Square(0,0,3): A([0,0],[2,0],[0,2],[2,2])->[1,1]."));
+            }
+
+            @Test
+            public void simpleThreeByThree_DiamondPass() {
+                interpolator.interpolate(dummy, 3);
+                assertThat(actions, endsWith("Diamond(0,0,3): "+
+                        "A([0,0],[2,0],[1,1])->[1,0]. " +
+                        "A([1,1],[0,0],[0,2])->[0,1]. " +
+                        "A([0,2],[2,2],[1,1])->[1,2]. " +
+                        "A([1,1],[2,0],[2,2])->[2,1]. "));
             }
         }
     }
