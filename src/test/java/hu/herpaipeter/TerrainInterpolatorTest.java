@@ -37,13 +37,13 @@ public class TerrainInterpolatorTest {
 
         @Test
         public void Check_isPowerOfTwo() throws Exception {
-            assertThat(interpolator.isPowerOfTwo(2), is(true));
-            assertThat(interpolator.isPowerOfTwo(4), is(true));
-            assertThat(interpolator.isPowerOfTwo(8), is(true));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(2), is(true));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(4), is(true));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(8), is(true));
 
-            assertThat(interpolator.isPowerOfTwo(1), is(false));
-            assertThat(interpolator.isPowerOfTwo(7), is(false));
-            assertThat(interpolator.isPowerOfTwo(18), is(false));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(1), is(false));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(7), is(false));
+            assertThat(TerrainInterpolator.isGreaterThanTwoPowerOfTwo(18), is(false));
         }
 
         public class SquareDiamondCoordinateCalculations {
@@ -63,6 +63,38 @@ public class TerrainInterpolatorTest {
                         "A([0,2],[2,2],[1,1])->[1,2]. " +
                         "A([1,1],[2,0],[2,2])->[2,1]. "));
             }
+
+            @Test
+            public void DiamondSquare_FirstPass() throws Exception {
+                interpolator.interpolate(dummy, 5);
+                assertThat(actions, startsWith(
+                        "Square(0,0,5): A([0,0],[4,0],[0,4],[4,4])->[2,2]. "+
+                                "Diamond(0,0,5): " +
+                                "A([0,0],[4,0],[2,2])->[2,0]. " +
+                                "A([2,2],[0,0],[0,4])->[0,2]. " +
+                                "A([0,4],[4,4],[2,2])->[2,4]. " +
+                                "A([2,2],[4,0],[4,4])->[4,2]. "));
+            }
+        }
+    }
+
+    public class SquareDiamondRepetition {
+        @Before
+        public void setup() {
+            dummy = new double[1][1];
+            interpolator =
+                    new TerrainInterpolatorDiamondSquareSpy();
+        }
+
+        @Test
+        public void FiveByFive() throws Exception {
+            interpolator.interpolate(dummy, 5);
+            assertThat(actions, is(
+                    "" +
+                            "Square(0,0,5) Diamond(0,0,5) " +
+                            "Square(0,0,3) Square(0,2,3) Square(2,0,3) Square(2,2,3) " +
+                            "Diamond(0,0,3) Diamond(0,2,3) Diamond(2,0,3) Diamond(2,2,3) "
+            ));
         }
     }
     private class TerrainInterpolatorSpy extends TerrainInterpolator {
@@ -94,6 +126,17 @@ public class TerrainInterpolatorTest {
                         "[%d,%d],", points[i], points[i + 1]);
             actions = actions.substring(0, actions.length() - 1) + ")";
             return 0;
+        }
+    }
+
+    private class TerrainInterpolatorDiamondSquareSpy extends TerrainInterpolator {
+        void doSquare(int x, int y, int size) {
+            actions += String.format("Square(%d,%d,%d) ",x,y,size);
+        }
+
+        void doDiamond(int x, int y, int size) {
+            actions += String.format("Diamond(%d,%d,%d) ",x,y,size);
+
         }
     }
 }

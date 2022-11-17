@@ -1,6 +1,5 @@
 package hu.herpaipeter;
 
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,16 +9,24 @@ public class TerrainInterpolator {
     double[][] values;
 
     public void interpolate(double[][] values, int size) {
-        if (size <= 1)
-            return;
-        if (1 < size && !isPowerOfTwo(size - 1))
+        if (1 < size && !isGreaterThanTwoPowerOfTwo(size - 1))
             throw new BadSize();
         this.values = values;
-        doSquare(0,0, size);
-        doDiamond(0, 0, size);
+        for (int step = (size - 1); 1 < step; step /= 2) {
+            for (int i = 0; i < size - 1; i += step) {
+                for (int j = 0; j < size - 1; j += step) {
+                    doSquare(i, j, step + 1);
+                }
+            }
+            for (int i = 0; i < size - 1; i += step) {
+                for (int j = 0; j < size - 1; j += step) {
+                    doDiamond(i, j, step + 1);
+                }
+            }
+        }
     }
 
-    public boolean isPowerOfTwo(int num) {
+    public static boolean isGreaterThanTwoPowerOfTwo(int num) {
         if (num < 2)
             return false;
         while (num % 2 == 0)
@@ -63,11 +70,11 @@ public class TerrainInterpolator {
         if (isValidPair(xMiddle, yTop, size))
             ints.addAll(Arrays.asList(xMiddle, yTop));
 
-        double average1 = average(ints.toArray(new Integer[ints.size()]));
-        set(xMiddle, yMiddle, average1);
+        double average = average(ints.toArray(new Integer[ints.size()]));
+        set(xMiddle, yMiddle, average);
     }
 
-    boolean isValidPair(int x, int y, int size) {
+    static boolean isValidPair(int x, int y, int size) {
         return 0 <= x && x < size && 0 <= y && y < size;
     }
 
