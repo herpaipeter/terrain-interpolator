@@ -111,6 +111,17 @@ public class TerrainInterpolatorTest {
             assertThat(dummy, is(new double[][]
                     {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}));
         }
+
+        @Test
+        public void allOnes() throws Exception {
+            dummy[0][0] = dummy[2][0] =
+                    dummy[0][2] = dummy[2][2] = 1;
+            interpolator.interpolate(dummy, 3);
+            assertThat(dummy, is(new double[][]{
+                    {1, 1, 1},
+                    {1, 1, 1},
+                    {1, 1, 1}}));
+        }
     }
     private class TerrainInterpolatorSpy extends TerrainInterpolator {
         @Override
