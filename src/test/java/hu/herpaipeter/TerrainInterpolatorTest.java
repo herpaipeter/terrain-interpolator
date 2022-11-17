@@ -97,6 +97,21 @@ public class TerrainInterpolatorTest {
             ));
         }
     }
+
+    public class Averages {
+        @Before
+        public void setup() {
+            dummy = new double[3][3];
+            interpolator = new TerrainInterpolator();
+        }
+
+        @Test
+        public void zero() throws Exception {
+            interpolator.interpolate(dummy, 3);
+            assertThat(dummy, is(new double[][]
+                    {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}));
+        }
+    }
     private class TerrainInterpolatorSpy extends TerrainInterpolator {
         @Override
         void doSquare(int x, int y, int size) {
