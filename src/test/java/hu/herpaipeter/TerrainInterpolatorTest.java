@@ -136,6 +136,28 @@ public class TerrainInterpolatorTest {
                     {12, 16, 24}}));
         }
     }
+
+    public class RandomsAndOffsets {
+        @Before
+        public void setup() {
+            dummy = new double[5][5];
+            interpolator =
+                    new TerrainInterpolatorWithFixedRandom();
+        }
+
+        @Test
+        public void volcano() throws Exception {
+            interpolator.interpolate(dummy, 5, 2,4);
+            assertThat(dummy, is(new double[][]{
+                    {0,8.5,8,8.5,0},
+                    {8.5,8.5,10.75,8.5,8.5},
+                    {8,10.75,6,10.75,8},
+                    {8.5,8.5,10.75,8.5,8.5},
+                    {0,8.5,8,8.5,0}
+            }));
+        }
+    }
+
     private class TerrainInterpolatorSpy extends TerrainInterpolator {
         @Override
         void doSquare(int x, int y, int size) {
@@ -176,6 +198,18 @@ public class TerrainInterpolatorTest {
         void doDiamond(int x, int y, int size) {
             actions += String.format("Diamond(%d,%d,%d) ",x,y,size);
 
+        }
+    }
+
+    private class TerrainInterpolatorWithFixedRandom extends TerrainInterpolator {
+
+//        void set(int x, int y, double value) {
+//            super.set(x, y, value);
+//            actions += String.format("->[%d,%d,(%f)]. ", x, y, value);
+//        }
+
+        double random() {
+            return randomAmplitude;
         }
     }
 }
