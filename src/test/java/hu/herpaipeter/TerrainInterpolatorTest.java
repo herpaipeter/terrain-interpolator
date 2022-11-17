@@ -5,6 +5,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.zip.CheckedOutputStream;
+
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -155,6 +162,38 @@ public class TerrainInterpolatorTest {
                     {8.5,8.5,10.75,8.5,8.5},
                     {0,8.5,8,8.5,0}
             }));
+        }
+    }
+
+    public class LargeTerrain {
+        @Test
+        public void big_one() throws Exception {
+            dummy = new double[1025][1025];
+            dummy[0][0] = -20;
+            dummy[0][1024] = 20;
+            dummy[1024][0] = 20;
+            dummy[1024][1024] = 50;
+            interpolator = new TerrainInterpolator();
+            interpolator.interpolate(dummy, 1025, 5, 0);
+            writeImage(dummy);
+        }
+    }
+
+
+    public void writeImage(double[][] values) {
+        String path = "output.png";
+        BufferedImage image = new BufferedImage(values.length, values[0].length, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < values.length; x++) {
+            for (int y = 0; y < values[x].length; y++) {
+                image.setRGB(x, y, (int) (5 * values[x][y]));
+            }
+        }
+
+        File ImageFile = new File(path);
+        try {
+            ImageIO.write(image, "png", ImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
