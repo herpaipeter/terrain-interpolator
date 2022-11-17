@@ -122,6 +122,19 @@ public class TerrainInterpolatorTest {
                     {1, 1, 1},
                     {1, 1, 1}}));
         }
+
+        @Test
+        public void ramp() throws Exception {
+            dummy[0][0] = 0;
+            dummy[2][0] = 12;
+            dummy[0][2] = 12;
+            dummy[2][2] = 24;
+            interpolator.interpolate(dummy,3);
+            assertThat(dummy, is(new double[][]{
+                    {0, 8, 12},
+                    {8, 12, 16},
+                    {12, 16, 24}}));
+        }
     }
     private class TerrainInterpolatorSpy extends TerrainInterpolator {
         @Override
